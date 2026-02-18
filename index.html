@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童识字小报生成器</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">🎨 儿童识字小报生成器</h1>
+            <button class="btn-icon" id="settingsBtn" title="设置">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+        </header>
+
+        <main class="main-content">
+            <!-- Input Form -->
+            <section class="form-section">
+                <div class="form-group">
+                    <label for="topicInput">📚 主题/场景</label>
+                    <input type="text" id="topicInput" placeholder="如：超市、医院、公园..." value="超市">
+                </div>
+                <div class="form-group">
+                    <label for="titleInput">📝 小报标题</label>
+                    <input type="text" id="titleInput" placeholder="如：走进超市" value="走进超市">
+                </div>
+                <button class="btn-primary" id="generateBtn">✨ 生成小报</button>
+            </section>
+
+            <!-- Loading State -->
+            <section class="loading-section hidden" id="loadingSection">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">正在生成小报，请稍候...</p>
+                <p class="loading-status" id="loadingStatus">创建任务中...</p>
+            </section>
+
+            <!-- Result Section -->
+            <section class="result-section hidden" id="resultSection">
+                <div class="result-header">
+                    <h2 id="resultTitle">生成结果</h2>
+                    <div class="result-actions">
+                        <button class="btn-secondary" id="saveBtn">💾 保存</button>
+                        <button class="btn-secondary" id="downloadBtn">⬇️ 下载</button>
+                        <button class="btn-tertiary" id="editPromptBtn">✏️ 编辑提示词</button>
+                    </div>
+                </div>
+                <div class="result-image">
+                    <img id="generatedImage" src="" alt="生成的识字小报">
+                </div>
+                <div class="vocab-list" id="vocabList">
+                    <!-- 词汇列表将在这里动态生成 -->
+                </div>
+                <div class="prompt-editor hidden" id="promptEditor">
+                    <label for="promptTextarea">提示词</label>
+                    <textarea id="promptTextarea" rows="8"></textarea>
+                    <div class="prompt-actions">
+                        <button class="btn-primary" id="regenerateBtn">🔄 重新生成</button>
+                        <button class="btn-tertiary" id="cancelEditBtn">取消</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section" id="historySection">
+                <h2>📖 历史记录</h2>
+                <div class="history-list" id="historyList">
+                    <p class="empty-hint">暂无历史记录</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Dialog -->
+    <div class="modal hidden" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ 设置</h2>
+                <button class="btn-close" id="closeSettingsBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="apiKeyInput">API Key</label>
+                    <input type="password" id="apiKeyInput" placeholder="请输入您的 Nano Banana Pro API Key">
+                    <p class="hint">从 <a href="https://kie.ai/api-key" target="_blank">https://kie.ai/api-key</a> 获取 API Key</p>
+                </div>
+                <div class="form-group">
+                    <label for="resolutionSelect">图片分辨率</label>
+                    <select id="resolutionSelect">
+                        <option value="1K" selected>1K (1024x1024)</option>
+                        <option value="2K">2K (2048x2048)</option>
+                        <option value="4K">4K (4096x4096)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="aspectRatioSelect">图片比例</label>
+                    <select id="aspectRatioSelect">
+                        <option value="2:3" selected>2:3 (竖版)</option>
+                        <option value="1:1">1:1 (方形)</option>
+                        <option value="3:4">3:4 (竖版)</option>
+                        <option value="3:2">3:2 (横版)</option>
+                        <option value="4:3">4:3 (横版)</option>
+                        <option value="9:16">9:16 (手机竖屏)</option>
+                        <option value="16:9">16:9 (手机横屏)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelSettingsBtn">取消</button>
+                <button class="btn-primary" id="saveSettingsBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div class="toast hidden" id="errorToast">
+        <span id="errorMessage"></span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/utils/async-helper.js"></script>
+    <script src="js/services/storage-service.js"></script>
+    <script src="js/services/vocab-service.js"></script>
+    <script src="js/services/prompt-service.js"></script>
+    <script src="js/api/image-api.js"></script>
+    <script src="js/ui/ui-manager.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
